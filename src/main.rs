@@ -1,20 +1,9 @@
-use axum::extract::Path;
-use axum::routing::get;
-use axum::Router;
-use std::net::SocketAddr;
+use std::net::TcpListener;
 
-async fn greet(Path(name): Path<String>) -> String {
-    format!("Hello {}!", name)
-}
+use zero2prod::run;
 
 #[tokio::main]
-async fn main() {
-    let app = Router::new().route("/:name", get(greet));
-
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+async fn main() -> Result<(), hyper::Error> {
+    let listener = TcpListener::bind("127.0.0.1:8000").expect("Failed to bind port 8000");
+    run(listener).await
 }
